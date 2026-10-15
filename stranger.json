@@ -1,0 +1,58 @@
+{
+  "expectedTarballFiles": [
+    "package/LICENSE",
+    "package/README.md",
+    "package/dist/index.d.ts",
+    "package/dist/index.js",
+    "package/dist/outcomes.d.ts",
+    "package/dist/outcomes.js",
+    "package/dist/run-ids.d.ts",
+    "package/dist/run-ids.js",
+    "package/package.json"
+  ],
+  "localDependencies": ["../cairn", "../puffball"],
+  "runtimeFixture": "test/stranger/runtime.mjs",
+  "typecheckFixture": "test/stranger/consumer.mts",
+  "consumerDevDependencies": {
+    "@types/node": "24.13.3"
+  },
+  "docs": {
+    "sigil": "list",
+    "home": {
+      "lead": "Share workflow IDs and wire schemas between a host and its App.",
+      "example": {
+        "file": "home.ts",
+        "title": "Mint a run ID",
+        "caption": "Generate and validate an identifier without starting a workflow."
+      },
+      "ladder": {
+        "start": [
+          {
+            "title": "Quickstart",
+            "href": "/quickstart/",
+            "description": "Run the first example and read its host requirements."
+          }
+        ],
+        "tasks": [
+          {
+            "title": "Examples",
+            "href": "/examples/",
+            "description": "Read worked usage and the checks that exercise it."
+          }
+        ],
+        "reference": [
+          {
+            "title": "API reference",
+            "href": "/api/",
+            "description": "Find public entrypoints and their documented contracts."
+          },
+          {
+            "title": "Install",
+            "href": "/install/",
+            "description": "Check dependencies and runtime requirements."
+          }
+        ]
+      }
+    }
+  }
+}
