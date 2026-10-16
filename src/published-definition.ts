@@ -13,7 +13,7 @@ export type WorkflowPublishedDefinitionContext = Pick<
 
 /**
  * How a host reads one published Workflow definition back out of Git. The
- * Workflows App owns the Git layout (drafts, versions, the copy index); this
+ * Trellis App owns the Git layout (drafts, versions, the copy index); this
  * port only wraps that read into the braid-shaped `PublishedDefinition`.
  */
 export type WorkflowPublishedReader = Readonly<{

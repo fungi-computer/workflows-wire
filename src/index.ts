@@ -4,3 +4,4 @@ export * from "./library-contracts.js";
 export * from "./run-contracts.js";
 export * from "./trigger-contracts.js";
 export * from "./published-definition.js";
+export * from "./workflow-repository.js";

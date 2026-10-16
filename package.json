@@ -1,8 +1,9 @@
 {
   "name": "@fungi.computer/workflows-wire",
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "author": "Levi <levi@technomancy.dev>",
   "private": false,
-  "description": "Workflow run ids and generic graph wire contract shared by Hub and the Workflows App",
+  "description": "Workflow run ids and generic graph wire contract shared by Hub and the Trellis App",
   "type": "module",
   "exports": {
     ".": {
@@ -28,7 +29,8 @@
     "@fungi.computer/cairn": "workspace:*",
     "@fungi.computer/puffball": "workspace:*",
     "effect": "4.0.2",
-    "zod": "4.4.3"
+    "zod": "4.4.3",
+    "@fungi.computer/agar": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
@@ -43,7 +45,7 @@
       "build": "required",
       "test": {
         "status": "not-applicable",
-        "reason": "Workflows App method and frontend tests and Hub workflow unit tests exercise this shared wire contract"
+        "reason": "Trellis App method and frontend tests and Hub workflow unit tests exercise this shared wire contract"
       },
       "docs": "required",
       "pack": "required",

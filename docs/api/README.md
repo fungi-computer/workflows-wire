@@ -1,6 +1,6 @@
 # API reference
 
-`workflowRunRequestIds` owns the run request ID family; hosts derive run IDs from the request. The remaining root schemas decode the generic graph replies a host returns to the Workflows App.
+`workflowRunRequestIds` owns the run request ID family; hosts derive run IDs from the request. The remaining root schemas decode the generic graph replies a host returns to the Trellis App.
 
 ## Public entrypoints
 

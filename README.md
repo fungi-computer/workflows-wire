@@ -2,7 +2,7 @@
 
 Workflow run and request IDs, plus the generic graph reply schemas (catalog,
 start, status, cancel, review, schedules and event triggers), live at the root.
-Hub and the Workflows App consume this package without an App-to-App dependency.
+Hub and the Trellis App consume this package without an App-to-App dependency.
 
 ## Packed consumer readiness
 
