@@ -29,6 +29,7 @@ export const runListItemSchema = z.lazy(() =>
     initiatedBy: workflowRunInitiatedBySchema,
   }),
 );
+/** Decoded run row with its pinned publication and display metadata. */
 export type WorkflowRunListItem = z.output<typeof runListItemSchema>;
 
 /**
@@ -42,4 +43,5 @@ export const viewerReplySchema = z.lazy(() =>
     z.strictObject({ error: z.string() }),
   ]),
 );
+/** Calling member identity, or a refusal returned by the viewer read. */
 export type ViewerReply = z.output<typeof viewerReplySchema>;

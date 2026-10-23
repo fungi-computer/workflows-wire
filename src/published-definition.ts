@@ -5,7 +5,7 @@ import type {
   WorkflowPublicationContext,
 } from "@fungi.computer/braid/runtime";
 
-/** The slice of {@link WorkflowPublicationContext} this port actually reads. */
+/** The installation identity and Git access read from the Workflow publication context. */
 export type WorkflowPublishedDefinitionContext = Pick<
   WorkflowPublicationContext,
   "installationId" | "git"
@@ -17,6 +17,7 @@ export type WorkflowPublishedDefinitionContext = Pick<
  * port only wraps that read into the braid-shaped `PublishedDefinition`.
  */
 export type WorkflowPublishedReader = Readonly<{
+  /** Read an exact published version or commit, or null when absent. */
   published(
     workflowId: string,
     at: { version: number } | { commit: string },

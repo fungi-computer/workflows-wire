@@ -6,6 +6,7 @@ import { workflowIdSchema } from "@fungi.computer/braid";
 const id = z.string().min(1).max(256);
 /** The Agent Session (chat) that receives the ending of every run it covers. */
 export const runDeliverySchema = z.strictObject({ agentId: id, sessionId: id });
+/** Agent and Session selected to receive run endings. */
 export type RunDelivery = z.output<typeof runDeliverySchema>;
 /** One chat the member may choose for run reports: an existing Agent Session. */
 export const chatsReplySchema = z.lazy(() =>
@@ -28,9 +29,13 @@ export const triggerTargetSchema = z.lazy(() =>
     delivery: runDeliverySchema.optional(),
   }),
 );
+/** Identify the schedule-trigger registration to disarm. */
 export const scheduleDisarmInputSchema = z.strictObject({ scheduleId: id });
+/** Identify the event-trigger registration to disarm. */
 export const eventDisarmInputSchema = z.strictObject({ eventTriggerId: id });
+/** Trigger listing takes no caller-supplied filters. */
 export const triggerListInputSchema = z.strictObject({});
+/** Published trigger, pinned commit, selected bindings and optional run delivery. */
 export type WorkflowTriggerTarget = z.output<typeof triggerTargetSchema>;
 
 /** Host binding input carries the App-owned immutable row digest, never caller input. */

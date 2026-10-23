@@ -4,15 +4,32 @@
     "package/README.md",
     "package/dist/index.d.ts",
     "package/dist/index.js",
+    "package/dist/library-contracts.d.ts",
+    "package/dist/library-contracts.js",
     "package/dist/outcomes.d.ts",
     "package/dist/outcomes.js",
+    "package/dist/published-definition.d.ts",
+    "package/dist/published-definition.js",
+    "package/dist/repository-app-source.d.ts",
+    "package/dist/repository-app-source.js",
+    "package/dist/run-contracts.d.ts",
+    "package/dist/run-contracts.js",
     "package/dist/run-ids.d.ts",
     "package/dist/run-ids.js",
+    "package/dist/trigger-contracts.d.ts",
+    "package/dist/trigger-contracts.js",
+    "package/dist/workflow-repository.d.ts",
+    "package/dist/workflow-repository.js",
+    "package/docs/api/README.md",
     "package/package.json"
   ],
-  "localDependencies": ["../cairn", "../puffball"],
+  "localDependencies": ["../agar", "../braid", "../cairn", "../puffball"],
   "runtimeFixture": "test/stranger/runtime.mjs",
-  "typecheckFixture": "test/stranger/consumer.mts",
+  "typechecks": [
+    {
+      "fixture": "test/stranger/consumer.mts"
+    }
+  ],
   "consumerDevDependencies": {
     "@types/node": "24.13.3"
   },

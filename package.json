@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/workflows-wire",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Levi <levi@technomancy.dev>",
   "private": false,
   "description": "Workflow run ids and generic graph wire contract shared by Hub and the Trellis App",
@@ -22,7 +22,8 @@
     "stranger": "tsx ../../tooling/repository/src/artifacts/cli.ts --repo-root ../.. .",
     "smoke": "node test/stranger/runtime.mjs",
     "prepack": "node scripts/prepare-package.mjs",
-    "docs": "node ../../apps/package-docs/scripts/build-sites.mjs --check workflows-wire"
+    "docs": "tsx ../../tooling/repository/src/docs/cli.ts check --root ../..",
+    "docs:write": "tsx ../../tooling/repository/src/docs/cli.ts write --root ../.."
   },
   "dependencies": {
     "@fungi.computer/braid": "workspace:*",
@@ -59,6 +60,7 @@
   },
   "files": [
     "dist",
+    "docs/api",
     "README.md",
     "LICENSE"
   ],

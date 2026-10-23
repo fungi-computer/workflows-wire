@@ -15,7 +15,7 @@ import { provenanceSchema } from "./library-contracts.js";
 /**
  * The read side of a Workflows library's Git layout, shared by the Workflows
  * App and the hosts that read its published definitions: one repository,
- * `workflows`, one `workflows/<id>.json` file per Workflow (its definition
+ * `trellis`, one `workflows/<id>.json` file per Workflow (its definition
  * plus `layout` and optional `provenance`), and one `<id>@v<n>` tag per
  * published version on `main`'s ancestry.
  */
@@ -28,6 +28,7 @@ export const workflowFilePath = (id: string) =>
   `workflows/${workflowIdSchema.parse(id)}.json`;
 
 const layoutSchema = S.Record(S.String, S.Struct({ x: S.Finite, y: S.Finite }));
+/** Decode stored definition, node layout and optional import/fork provenance. */
 export const workflowDraftSchema = S.Struct({
   definition: workflowDefinitionSchema,
   layout: layoutSchema,
@@ -41,8 +42,12 @@ export const workflowDraftSchema = S.Struct({
 /** One Workflow file's decoded content. */
 export type WorkflowDraft = typeof workflowDraftSchema.Type;
 /** A Workflow file's content at the commit it was read from. */
-export type WorkflowDocument = WorkflowDraft & { readonly commit: string };
+export type WorkflowDocument = WorkflowDraft & {
+  /** Exact Git commit from which the document was read. */
+  readonly commit: string;
+};
 
+/** Read-only Git operations needed to traverse and decode library files. */
 export type WorkflowReadGit = Pick<
   GitBinding,
   "readCommit" | "readTree" | "readBlob"
