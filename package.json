@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/workflows-wire",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "author": "Levi <levi@technomancy.dev>",
   "private": false,
   "description": "Workflow run ids and generic graph wire contract shared by Hub and the Trellis App",

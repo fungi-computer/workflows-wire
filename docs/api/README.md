@@ -8,6 +8,14 @@
 
 ## Type Aliases
 
+### ScheduleListInput
+
+```ts
+type ScheduleListInput = z.input<typeof scheduleListInputSchema>;
+```
+
+---
+
 ### WorkflowPublishedDefinitionContext
 
 ```ts
@@ -129,6 +137,22 @@ type WorkflowReadGit = Pick<GitBinding, "readCommit" | "readTree" | "readBlob">;
 Read-only Git operations needed to traverse and decode library files.
 
 ## Variables
+
+### scheduleListInputSchema
+
+```ts
+const scheduleListInputSchema: z.ZodObject<
+  {
+    limit: z.ZodDefault<z.ZodNumber>;
+    after: z.ZodOptional<z.ZodString>;
+  },
+  z.core.$strict
+>;
+```
+
+Installation-scoped keyset read; the default and ceiling bound one reply.
+
+---
 
 ### provenanceSchema
 
@@ -1355,6 +1379,36 @@ Trigger disarm result, including an absent trigger or denied invocation.
 
 ---
 
+### schedulePauseReplySchema
+
+```ts
+const schedulePauseReplySchema: ZodLazy<
+  ZodUnion<
+    readonly [
+      ZodObject<
+        {
+          kind: ZodEnum<{
+            not_found: "not_found";
+            paused: "paused";
+          }>;
+        },
+        $strict
+      >,
+      ZodObject<
+        {
+          error: ZodString;
+        },
+        $strict
+      >,
+    ]
+  >
+>;
+```
+
+Future admission paused, or no controllable active registration found.
+
+---
+
 ### schedulesReplySchema
 
 ```ts
@@ -1382,6 +1436,7 @@ const schedulesReplySchema: ZodLazy<
               $strict
             >
           >;
+          nextCursor: ZodNullable<ZodString>;
         },
         $strict
       >,
@@ -1396,7 +1451,7 @@ const schedulesReplySchema: ZodLazy<
 >;
 ```
 
-Visible schedule-trigger rows with their next due time and lifecycle state.
+One bounded installation page; continue strictly after nextCursor.
 
 ---
 
@@ -1808,6 +1863,21 @@ const scheduleDisarmInputSchema: ZodObject<
 ```
 
 Identify the schedule-trigger registration to disarm.
+
+---
+
+### schedulePauseInputSchema
+
+```ts
+const schedulePauseInputSchema: ZodObject<
+  {
+    scheduleId: ZodString;
+  },
+  $strict
+>;
+```
+
+Pause future occurrences without cancelling accepted runs.
 
 ---
 

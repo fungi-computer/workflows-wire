@@ -2,6 +2,10 @@ import * as z from "zod";
 import { bindingsSelectionSchema } from "@fungi.computer/braid/git-access";
 import { gitSha1Schema } from "@fungi.computer/puffball/git-representation";
 import { workflowIdSchema } from "@fungi.computer/braid";
+export {
+  workflowScheduleListInputSchema as scheduleListInputSchema,
+  type WorkflowScheduleListInput as ScheduleListInput,
+} from "@fungi.computer/braid/runtime";
 
 const id = z.string().min(1).max(256);
 /** The Agent Session (chat) that receives the ending of every run it covers. */
@@ -31,6 +35,8 @@ export const triggerTargetSchema = z.lazy(() =>
 );
 /** Identify the schedule-trigger registration to disarm. */
 export const scheduleDisarmInputSchema = z.strictObject({ scheduleId: id });
+/** Pause future occurrences without cancelling accepted runs. */
+export const schedulePauseInputSchema = z.strictObject({ scheduleId: id });
 /** Identify the event-trigger registration to disarm. */
 export const eventDisarmInputSchema = z.strictObject({ eventTriggerId: id });
 /** Trigger listing takes no caller-supplied filters. */

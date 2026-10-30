@@ -1,5 +1,22 @@
 # @fungi.computer/workflows-wire
 
+## 0.3.0
+
+### Minor Changes
+
+- Changes since 0.2.4:
+
+  - feat(workflows): pause schedules and page installation reads
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.6.0
+  - @fungi.computer/braid@0.3.0
+  - @fungi.computer/puffball@0.3.0
+
 ## 0.2.4
 
 ### Patch Changes

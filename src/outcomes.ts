@@ -231,29 +231,37 @@ export const triggerDisarmReplySchema = z.lazy(() =>
     denied,
   ]),
 );
-/** Visible schedule-trigger rows with their next due time and lifecycle state. */
+/** Future admission paused, or no controllable active registration found. */
+export const schedulePauseReplySchema = z.lazy(() =>
+  z.union([z.strictObject({ kind: z.enum(["paused", "not_found"]) }), denied]),
+);
+/** One bounded installation page; continue strictly after nextCursor. */
 export const schedulesReplySchema = z.lazy(() =>
   z.union([
     z.strictObject({
       /** Schedule-trigger registrations visible to this invocation. */
-      schedules: z.array(
-        z.strictObject({
-          /** Identity of the schedule registration. */
-          scheduleId: id,
-          /** Installation owning the Workflow schedule and its control door. */
-          installationId: id,
-          /** Workflow whose published trigger was armed. */
-          workflowId: workflowIdSchema,
-          /** Trigger identity within the published definition. */
-          triggerId: id,
-          /** Next occurrence time in epoch milliseconds. */
-          nextDueAt: z.number().int(),
-          /** Current schedule lifecycle state. */
-          state: z.enum(["active", "paused", "cancelled", "finished"]),
-          /** Latest scheduling failure, or null when absent. */
-          lastError: z.string().nullable(),
-        }),
-      ),
+      schedules: z
+        .array(
+          z.strictObject({
+            /** Identity of the schedule registration. */
+            scheduleId: id,
+            /** Installation owning the Workflow schedule and its control door. */
+            installationId: id,
+            /** Workflow whose published trigger was armed. */
+            workflowId: workflowIdSchema,
+            /** Trigger identity within the published definition. */
+            triggerId: id,
+            /** Next occurrence time in epoch milliseconds. */
+            nextDueAt: z.number().int(),
+            /** Current schedule lifecycle state. */
+            state: z.enum(["active", "paused", "cancelled", "finished"]),
+            /** Latest scheduling failure, or null when absent. */
+            lastError: z.string().nullable(),
+          }),
+        )
+        .max(100),
+      /** Last visible schedule id when another page exists; otherwise null. */
+      nextCursor: id.nullable(),
     }),
     denied,
   ]),
