@@ -1,5 +1,21 @@
 # @fungi.computer/workflows-wire
 
+## 0.4.0
+
+### Minor Changes
+
+- Changes since 0.3.0:
+
+  - feat(schedules): resume paused schedules through native owners
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/braid@0.4.0
+  - @fungi.computer/puffball@0.4.0
+  - @fungi.computer/agar@0.6.1
+
 ## 0.3.0
 
 ### Minor Changes

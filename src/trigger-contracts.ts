@@ -37,6 +37,8 @@ export const triggerTargetSchema = z.lazy(() =>
 export const scheduleDisarmInputSchema = z.strictObject({ scheduleId: id });
 /** Pause future occurrences without cancelling accepted runs. */
 export const schedulePauseInputSchema = z.strictObject({ scheduleId: id });
+/** Resume future occurrences of a paused registration. */
+export const scheduleResumeInputSchema = z.strictObject({ scheduleId: id });
 /** Identify the event-trigger registration to disarm. */
 export const eventDisarmInputSchema = z.strictObject({ eventTriggerId: id });
 /** Trigger listing takes no caller-supplied filters. */

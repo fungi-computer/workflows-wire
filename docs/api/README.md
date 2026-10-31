@@ -1409,6 +1409,44 @@ Future admission paused, or no controllable active registration found.
 
 ---
 
+### scheduleResumeReplySchema
+
+```ts
+const scheduleResumeReplySchema: ZodLazy<
+  ZodUnion<
+    readonly [
+      ZodObject<
+        {
+          kind: ZodEnum<{
+            not_found: "not_found";
+            resumed: "resumed";
+          }>;
+        },
+        $strict
+      >,
+      ZodObject<
+        {
+          kind: ZodLiteral<"refused">;
+          reason: ZodString;
+        },
+        $strict
+      >,
+      ZodObject<
+        {
+          error: ZodString;
+        },
+        $strict
+      >,
+    ]
+  >
+>;
+```
+
+Future admission resumed, no controllable paused registration, or invalid
+cadence.
+
+---
+
 ### schedulesReplySchema
 
 ```ts
@@ -1424,6 +1462,13 @@ const schedulesReplySchema: ZodLazy<
                 installationId: ZodString;
                 workflowId: ZodString;
                 triggerId: ZodString;
+                cron: ZodObject<
+                  {
+                    expression: ZodString;
+                    timeZone: ZodString;
+                  },
+                  $strict
+                >;
                 nextDueAt: ZodNumber;
                 state: ZodEnum<{
                   cancelled: "cancelled";
@@ -1878,6 +1923,21 @@ const schedulePauseInputSchema: ZodObject<
 ```
 
 Pause future occurrences without cancelling accepted runs.
+
+---
+
+### scheduleResumeInputSchema
+
+```ts
+const scheduleResumeInputSchema: ZodObject<
+  {
+    scheduleId: ZodString;
+  },
+  $strict
+>;
+```
+
+Resume future occurrences of a paused registration.
 
 ---
 

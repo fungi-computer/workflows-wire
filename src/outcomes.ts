@@ -235,6 +235,14 @@ export const triggerDisarmReplySchema = z.lazy(() =>
 export const schedulePauseReplySchema = z.lazy(() =>
   z.union([z.strictObject({ kind: z.enum(["paused", "not_found"]) }), denied]),
 );
+/** Future admission resumed, no controllable paused registration, or invalid cadence. */
+export const scheduleResumeReplySchema = z.lazy(() =>
+  z.union([
+    z.strictObject({ kind: z.enum(["resumed", "not_found"]) }),
+    z.strictObject({ kind: z.literal("refused"), reason: z.string() }),
+    denied,
+  ]),
+);
 /** One bounded installation page; continue strictly after nextCursor. */
 export const schedulesReplySchema = z.lazy(() =>
   z.union([
@@ -251,6 +259,11 @@ export const schedulesReplySchema = z.lazy(() =>
             workflowId: workflowIdSchema,
             /** Trigger identity within the published definition. */
             triggerId: id,
+            /** Cadence in the schedule's own time zone. */
+            cron: z.strictObject({
+              expression: z.string().max(256),
+              timeZone: z.string().max(128),
+            }),
             /** Next occurrence time in epoch milliseconds. */
             nextDueAt: z.number().int(),
             /** Current schedule lifecycle state. */
