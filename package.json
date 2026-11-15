@@ -1,6 +1,6 @@
 {
   "name": "@fungi.computer/workflows-wire",
-  "version": "0.4.18",
+  "version": "0.4.19",
   "author": "Levi <levi@technomancy.dev>",
   "private": false,
   "description": "Workflow run ids and generic graph wire contract shared by Hub and the Trellis App",
@@ -19,12 +19,12 @@
     "prepack": "node scripts/prepare-package.mjs"
   },
   "dependencies": {
-    "@fungi.computer/braid": "0.4.18",
+    "@fungi.computer/braid": "0.4.19",
     "@fungi.computer/cairn": "0.1.0",
     "@fungi.computer/puffball": "0.9.0",
     "effect": "4.0.2",
     "zod": "4.4.3",
-    "@fungi.computer/agar": "0.17.0"
+    "@fungi.computer/agar": "0.18.0"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
