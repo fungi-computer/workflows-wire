@@ -16,6 +16,16 @@ type ScheduleListInput = z.input<typeof scheduleListInputSchema>;
 
 ---
 
+### Frames
+
+```ts
+type Frames = z.output<typeof framesSchema>;
+```
+
+One draft's comment frames.
+
+---
+
 ### WorkflowPublishedDefinitionContext
 
 ```ts
@@ -269,6 +279,50 @@ Run request pinned to either a published version or an exact Git commit.
 
 ---
 
+### frameTones
+
+```ts
+const frameTones: readonly ["teal", "mauve", "peach", "sky", "green", "grey"];
+```
+
+The colours a comment frame can take.
+
+---
+
+### framesSchema
+
+```ts
+const framesSchema: ZodArray<
+  ZodObject<
+    {
+      id: ZodString;
+      graph: ZodString;
+      label: ZodString;
+      tone: ZodEnum<{
+        teal: "teal";
+        mauve: "mauve";
+        peach: "peach";
+        sky: "sky";
+        green: "green";
+        grey: "grey";
+      }>;
+      x: ZodNumber;
+      y: ZodNumber;
+      width: ZodNumber;
+      height: ZodNumber;
+    },
+    $strict
+  >
+>;
+```
+
+Comment frames drawn behind a graph's nodes: at most 32, each labelled in 60
+characters. They sit beside the layout, never inside the definition, so they
+never reach compilation or the publish digest. `graph` is `root` or a body
+graph's id.
+
+---
+
 ### document
 
 ```ts
@@ -290,11 +344,30 @@ const document: ZodObject<{
      x: ZodNumber;
      y: ZodNumber;
   }, $strict>>;
+  frames: ZodOptional<ZodArray<ZodObject<{
+     id: ZodString;
+     graph: ZodString;
+     label: ZodString;
+     tone: ZodEnum<{
+        teal: "teal";
+        mauve: "mauve";
+        peach: "peach";
+        sky: "sky";
+        green: "green";
+        grey: "grey";
+     }>;
+     x: ZodNumber;
+     y: ZodNumber;
+     width: ZodNumber;
+     height: ZodNumber;
+  }, $strict>>>;
   commit: ZodString;
 }, $strict>;
 ```
 
-Wire document containing definition, node layout, provenance and commit.
+Wire document containing definition, node layout, optional frames, provenance
+and commit. Layout keys are node ids for the root graph and `<graphId>/<nodeId>`
+for a body graph; braid node ids cannot contain `/`.
 
 ---
 
@@ -329,6 +402,23 @@ const draftDocument: ZodObject<{
      x: ZodNumber;
      y: ZodNumber;
   }, $strict>>;
+  frames: ZodOptional<ZodArray<ZodObject<{
+     id: ZodString;
+     graph: ZodString;
+     label: ZodString;
+     tone: ZodEnum<{
+        teal: "teal";
+        mauve: "mauve";
+        peach: "peach";
+        sky: "sky";
+        green: "green";
+        grey: "grey";
+     }>;
+     x: ZodNumber;
+     y: ZodNumber;
+     width: ZodNumber;
+     height: ZodNumber;
+  }, $strict>>>;
   revision: ZodNumber;
 }, $strict>;
 ```
@@ -358,6 +448,23 @@ const publishedDocument: ZodObject<{
      x: ZodNumber;
      y: ZodNumber;
   }, $strict>>;
+  frames: ZodOptional<ZodArray<ZodObject<{
+     id: ZodString;
+     graph: ZodString;
+     label: ZodString;
+     tone: ZodEnum<{
+        teal: "teal";
+        mauve: "mauve";
+        peach: "peach";
+        sky: "sky";
+        green: "green";
+        grey: "grey";
+     }>;
+     x: ZodNumber;
+     y: ZodNumber;
+     width: ZodNumber;
+     height: ZodNumber;
+  }, $strict>>>;
   commit: ZodString;
   workflowId: ZodString;
   version: ZodNumber;
@@ -384,6 +491,16 @@ const saveReply: ZodUnion<readonly [ZodObject<{
         x: ZodNumber;
         y: ZodNumber;
      }, $strict>>;
+     frames: ZodOptional<ZodArray<ZodObject<{
+        id: ...;
+        graph: ...;
+        label: ...;
+        tone: ...;
+        x: ...;
+        y: ...;
+        width: ...;
+        height: ...;
+     }, $strict>>>;
      revision: ZodNumber;
   }, $strict>>;
 }, $strict>, ZodObject<{
@@ -489,6 +606,7 @@ const shareCopyReply: ZodLazy<ZodUnion<readonly [ZodObject<{
         x: ...;
         y: ...;
      }, $strict>>;
+     frames: ZodOptional<ZodArray<ZodObject<..., ...>>>;
      revision: ZodNumber;
   }, $strict>>;
 }, $strict>, ZodObject<{
@@ -938,6 +1056,23 @@ const documentRead: ZodLazy<ZodUnion<readonly [ZodObject<{
      x: ZodNumber;
      y: ZodNumber;
   }, $strict>>;
+  frames: ZodOptional<ZodArray<ZodObject<{
+     id: ZodString;
+     graph: ZodString;
+     label: ZodString;
+     tone: ZodEnum<{
+        teal: ...;
+        mauve: ...;
+        peach: ...;
+        sky: ...;
+        green: ...;
+        grey: ...;
+     }>;
+     x: ZodNumber;
+     y: ZodNumber;
+     width: ZodNumber;
+     height: ZodNumber;
+  }, $strict>>>;
   revision: ZodNumber;
 }, $strict>, ZodObject<{
   provenance: ZodOptional<ZodLazy<ZodUnion<readonly [ZodObject<{
@@ -957,6 +1092,23 @@ const documentRead: ZodLazy<ZodUnion<readonly [ZodObject<{
      x: ZodNumber;
      y: ZodNumber;
   }, $strict>>;
+  frames: ZodOptional<ZodArray<ZodObject<{
+     id: ZodString;
+     graph: ZodString;
+     label: ZodString;
+     tone: ZodEnum<{
+        teal: ...;
+        mauve: ...;
+        peach: ...;
+        sky: ...;
+        green: ...;
+        grey: ...;
+     }>;
+     x: ZodNumber;
+     y: ZodNumber;
+     width: ZodNumber;
+     height: ZodNumber;
+  }, $strict>>>;
   commit: ZodString;
 }, $strict>, ZodNull, ZodLazy<ZodObject<{
   kind: ZodLiteral<"rebuilding">;
@@ -1974,9 +2126,9 @@ const workflowLibraryRepository: "trellis" = "trellis";
 
 The read side of a Workflows library's Git layout, shared by the Workflows App
 and the hosts that read its published definitions: one repository, `trellis`,
-one `workflows/<id>.json` file per Workflow (its definition plus `layout` and
-optional `provenance`), and one `<id>@v<n>` tag per published version on
-`main`'s ancestry.
+one `workflows/<id>.json` file per Workflow (its definition plus `layout`,
+optional `frames` and optional `provenance`), and one `<id>@v<n>` tag per
+published version on `main`'s ancestry.
 
 ---
 
@@ -2031,6 +2183,8 @@ const workflowDraftSchema: Struct<{
      nodes: $Array<Union<readonly [Struct<{
         id: String;
         kind: Literal<"code">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         source: String;
         input: $Record<String, Codec<..., ..., ..., ...>>;
         output: $Record<String, Codec<..., ..., ..., ...>>;
@@ -2038,6 +2192,8 @@ const workflowDraftSchema: Struct<{
       }>, Struct<{
         id: String;
         kind: Literal<"app">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         app: String;
         method: String;
         methodDigest: String;
@@ -2048,6 +2204,7 @@ const workflowDraftSchema: Struct<{
         id: String;
         kind: Literal<"review">;
         title: String;
+        note: optionalKey<String>;
         detail: optionalKey<String>;
         show: $Array<Struct<...>>;
         reviewers: Literals<readonly [..., ...]>;
@@ -2056,10 +2213,14 @@ const workflowDraftSchema: Struct<{
       }>, Struct<{
         id: String;
         kind: Literal<"condition">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         test: Codec<Predicate, Predicate, never, never>;
       }>, Struct<{
         id: String;
         kind: Literal<"map">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         over: Struct<{
            node: ...;
            port: ...;
@@ -2070,16 +2231,22 @@ const workflowDraftSchema: Struct<{
       }>, Struct<{
         id: String;
         kind: Literal<"repeat">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         body: String;
         maxRounds: Number;
         until: Codec<Predicate, Predicate, never, never>;
       }>, Struct<{
         id: String;
         kind: Literal<"wait">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         for: Number;
       }>, Struct<{
         id: String;
         kind: Literal<"transform">;
+        title: optionalKey<String>;
+        note: optionalKey<String>;
         fields: $Record<String, Codec<..., ..., ..., ...>>;
      }>]>>;
      edges: $Array<Struct<{
@@ -2101,6 +2268,7 @@ const workflowDraftSchema: Struct<{
      x: Finite;
      y: Finite;
   }>>;
+  frames: optionalKey<declare<object[], object[]>>;
   provenance: optionalKey<declare<
      | {
      kind: "import";
@@ -2131,7 +2299,8 @@ const workflowDraftSchema: Struct<{
 }>;
 ```
 
-Decode stored definition, node layout and optional import/fork provenance.
+Decode stored definition, node layout, optional comment frames and optional
+import/fork provenance.
 
 ## Functions
 
@@ -2299,6 +2468,8 @@ function inspectWorkflowFile(
            | {
            id: string;
            kind: "code";
+           title?: string;
+           note?: string;
            source: string;
            input: {
             [key: string]: Json;
@@ -2313,6 +2484,8 @@ function inspectWorkflowFile(
            | {
            id: string;
            kind: "app";
+           title?: string;
+           note?: string;
            app: string;
            method: string;
            methodDigest: string;
@@ -2337,6 +2510,7 @@ function inspectWorkflowFile(
            id: string;
            kind: "review";
            title: string;
+           note?: string;
            detail?: string;
            show: readonly object[];
            reviewers: "runner" | "owners";
@@ -2346,11 +2520,15 @@ function inspectWorkflowFile(
            | {
            id: string;
            kind: "condition";
+           title?: string;
+           note?: string;
            test: Predicate;
          }
            | {
            id: string;
            kind: "map";
+           title?: string;
+           note?: string;
            over: {
               node: string;
               port: string;
@@ -2362,6 +2540,8 @@ function inspectWorkflowFile(
            | {
            id: string;
            kind: "repeat";
+           title?: string;
+           note?: string;
            body: string;
            maxRounds: number;
            until: Predicate;
@@ -2369,11 +2549,15 @@ function inspectWorkflowFile(
            | {
            id: string;
            kind: "wait";
+           title?: string;
+           note?: string;
            for: number;
          }
            | {
            id: string;
            kind: "transform";
+           title?: string;
+           note?: string;
            fields: {
             [key: string]: Mapping;
            };
@@ -2386,6 +2570,7 @@ function inspectWorkflowFile(
      layout: {
       [key: string]: object;
      };
+     frames?: object[];
      provenance?:   | {
         kind: "import";
         workflowId: string;
@@ -2430,29 +2615,33 @@ Decode a pushed file separately from the admitted catalog's semantic validation.
 `on`: `"event"`; `title?`: `string`; `app`: `string`; `event`: `string`;
 `eventDigest`: `string`; `when?`: `Predicate`; `input?`: \{ \[`key`: ...\]: ...;
 \}; `repository?`: `Mapping`; \})[]; `input`: \{ \[`key`: `string`\]: `Json`;
-\}; `nodes`: readonly ( \| \{ `id`: `string`; `kind`: `"code"`; `source`:
-`string`; `input`: \{ \[`key`: `string`\]: `Json`; \}; `output`: \{ \[`key`:
-`string`\]: `Json`; \}; `values`: \{ \[`key`: `string`\]: `Mapping`; \}; \} \|
-\{ `id`: `string`; `kind`: `"app"`; `app`: `string`; `method`: `string`;
+\}; `nodes`: readonly ( \| \{ `id`: `string`; `kind`: `"code"`; `title?`:
+`string`; `note?`: `string`; `source`: `string`; `input`: \{ \[`key`:
+`string`\]: `Json`; \}; `output`: \{ \[`key`: `string`\]: `Json`; \}; `values`:
+\{ \[`key`: `string`\]: `Mapping`; \}; \} \| \{ `id`: `string`; `kind`: `"app"`;
+`title?`: `string`; `note?`: `string`; `app`: `string`; `method`: `string`;
 `methodDigest`: `string`; `values`: \{ \[`key`: `string`\]: `Mapping`; \};
 `gitAccess?`: \| \{ `binding`: `string`; `repository`: `string`; `branches`:
 ...[]; \} \| \{ `binding`: `string`; `repository`: `string`; `access`: `"read"`;
 \}; `retry?`: \{ `attempts`: `number`; \}; \} \| \{ `id`: `string`; `kind`:
-`"review"`; `title`: `string`; `detail?`: `string`; `show`: readonly `object`[];
-`reviewers`: `"runner"` \| `"owners"`; `timeout`: `number`; `choices?`: readonly
-`object`[]; \} \| \{ `id`: `string`; `kind`: `"condition"`; `test`: `Predicate`;
-\} \| \{ `id`: `string`; `kind`: `"map"`; `over`: \{ `node`: `string`; `port`:
-`string`; \}; `body`: `string`; `concurrency`: `number`; `maxItems`: `number`;
-\} \| \{ `id`: `string`; `kind`: `"repeat"`; `body`: `string`; `maxRounds`:
-`number`; `until`: `Predicate`; \} \| \{ `id`: `string`; `kind`: `"wait"`;
-`for`: `number`; \} \| \{ `id`: `string`; `kind`: `"transform"`; `fields`: \{
-\[`key`: `string`\]: `Mapping`; \}; \})[]; `edges`: readonly `object`[];
-`output`: \{ \[`key`: `string`\]: `object`; \}; \}; `layout`: \{ \[`key`:
-`string`\]: `object`; \}; `provenance?`: \| \{ `kind`: `"import"`; `workflowId`:
-`string`; `version`: `number`; `commit`: `string`; `sha256`: `string` &
-`object`; `origin?`: `string`; \} \| \{ `kind`: `"fork"`; `workflowId`:
-`string`; `commit`: `string`; \}; \}; \} \| \{ `kind`: `"invalid"`; `issues`:
-readonly `Issue`[]; \}\>
+`"review"`; `title`: `string`; `note?`: `string`; `detail?`: `string`; `show`:
+readonly `object`[]; `reviewers`: `"runner"` \| `"owners"`; `timeout`: `number`;
+`choices?`: readonly `object`[]; \} \| \{ `id`: `string`; `kind`: `"condition"`;
+`title?`: `string`; `note?`: `string`; `test`: `Predicate`; \} \| \{ `id`:
+`string`; `kind`: `"map"`; `title?`: `string`; `note?`: `string`; `over`: \{
+`node`: `string`; `port`: `string`; \}; `body`: `string`; `concurrency`:
+`number`; `maxItems`: `number`; \} \| \{ `id`: `string`; `kind`: `"repeat"`;
+`title?`: `string`; `note?`: `string`; `body`: `string`; `maxRounds`: `number`;
+`until`: `Predicate`; \} \| \{ `id`: `string`; `kind`: `"wait"`; `title?`:
+`string`; `note?`: `string`; `for`: `number`; \} \| \{ `id`: `string`; `kind`:
+`"transform"`; `title?`: `string`; `note?`: `string`; `fields`: \{ \[`key`:
+`string`\]: `Mapping`; \}; \})[]; `edges`: readonly `object`[]; `output`: \{
+\[`key`: `string`\]: `object`; \}; \}; `layout`: \{ \[`key`: `string`\]:
+`object`; \}; `frames?`: `object`[]; `provenance?`: \| \{ `kind`: `"import"`;
+`workflowId`: `string`; `version`: `number`; `commit`: `string`; `sha256`:
+`string` & `object`; `origin?`: `string`; \} \| \{ `kind`: `"fork"`;
+`workflowId`: `string`; `commit`: `string`; \}; \}; \} \| \{ `kind`:
+`"invalid"`; `issues`: readonly `Issue`[]; \}\>
 
 ---
 

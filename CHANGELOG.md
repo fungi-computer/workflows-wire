@@ -1,5 +1,23 @@
 # @fungi.computer/workflows-wire
 
+## 0.5.0
+
+### Minor Changes
+
+- Changes since 0.4.24:
+
+  - feat(trellis): carry comment frames and body layout keys, and share
+    writeSteps
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @fungi.computer/agar@0.21.0
+  - @fungi.computer/braid@0.5.0
+  - @fungi.computer/puffball@0.11.0
+
 ## 0.4.24
 
 ### Patch Changes

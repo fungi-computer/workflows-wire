@@ -10,13 +10,13 @@ import {
 } from "@fungi.computer/agar/read-copy";
 import * as S from "effect/Schema";
 import * as z from "zod";
-import { provenanceSchema } from "./library-contracts.js";
+import { framesSchema, provenanceSchema } from "./library-contracts.js";
 
 /**
  * The read side of a Workflows library's Git layout, shared by the Workflows
  * App and the hosts that read its published definitions: one repository,
  * `trellis`, one `workflows/<id>.json` file per Workflow (its definition
- * plus `layout` and optional `provenance`), and one `<id>@v<n>` tag per
+ * plus `layout`, optional `frames` and optional `provenance`), and one `<id>@v<n>` tag per
  * published version on `main`'s ancestry.
  */
 export const workflowLibraryRepository = "trellis";
@@ -28,10 +28,19 @@ export const workflowFilePath = (id: string) =>
   `workflows/${workflowIdSchema.parse(id)}.json`;
 
 const layoutSchema = S.Record(S.String, S.Struct({ x: S.Finite, y: S.Finite }));
-/** Decode stored definition, node layout and optional import/fork provenance. */
+/**
+ * Decode stored definition, node layout, optional comment frames and optional
+ * import/fork provenance.
+ */
 export const workflowDraftSchema = S.Struct({
   definition: workflowDefinitionSchema,
   layout: layoutSchema,
+  frames: S.optionalKey(
+    S.declare(
+      (value): value is z.output<typeof framesSchema> =>
+        framesSchema.safeParse(value).success,
+    ),
+  ),
   provenance: S.optionalKey(
     S.declare(
       (value): value is z.output<typeof provenanceSchema> =>
@@ -127,13 +136,18 @@ export async function inspectWorkflowFile(
     const file = z
       .record(z.string(), z.json())
       .parse(JSON.parse(new TextDecoder().decode(bytes)));
-    const { layout = {}, provenance, ...definition } = file;
+    const { layout = {}, frames, provenance, ...definition } = file;
+    // A file without frames or provenance stays without them; both are optional.
     const content = { definition, layout };
-    const decode = S.decodeUnknownSync(workflowDraftSchema);
-    // A file without provenance stays without it; the key is optional.
-    const draft = Object.hasOwn(file, "provenance")
-      ? decode({ ...content, provenance }, { onExcessProperty: "error" })
-      : decode(content, { onExcessProperty: "error" });
+    const framed = Object.hasOwn(file, "frames")
+      ? { ...content, frames }
+      : content;
+    const stored = Object.hasOwn(file, "provenance")
+      ? { ...framed, provenance }
+      : framed;
+    const draft = S.decodeUnknownSync(workflowDraftSchema)(stored, {
+      onExcessProperty: "error",
+    });
     return { kind: "valid", draft };
   } catch (cause) {
     if (

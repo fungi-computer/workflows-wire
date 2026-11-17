@@ -46,7 +46,42 @@ export const publishedRun = z.lazy(() =>
     runBase.extend({ commit: gitSha1Schema }),
   ]),
 );
-/** Wire document containing definition, node layout, provenance and commit. */
+/** The colours a comment frame can take. */
+export const frameTones = [
+  "teal",
+  "mauve",
+  "peach",
+  "sky",
+  "green",
+  "grey",
+] as const;
+/**
+ * Comment frames drawn behind a graph's nodes: at most 32, each labelled in
+ * 60 characters. They sit beside the layout, never inside the definition, so
+ * they never reach compilation or the publish digest. `graph` is `root` or a
+ * body graph's id.
+ */
+export const framesSchema = z
+  .array(
+    z.strictObject({
+      id: z.string().min(1).max(80),
+      graph: z.string().min(1).max(80),
+      label: z.string().max(60),
+      tone: z.enum(frameTones),
+      x: z.number(),
+      y: z.number(),
+      width: z.number().positive(),
+      height: z.number().positive(),
+    }),
+  )
+  .max(32);
+/** One draft's comment frames. */
+export type Frames = z.output<typeof framesSchema>;
+/**
+ * Wire document containing definition, node layout, optional frames,
+ * provenance and commit. Layout keys are node ids for the root graph and
+ * `<graphId>/<nodeId>` for a body graph; braid node ids cannot contain `/`.
+ */
 export const document = z.strictObject({
   provenance: provenanceSchema.optional(),
   definition: z.record(z.string(), z.json()),
@@ -54,6 +89,7 @@ export const document = z.strictObject({
     z.string(),
     z.strictObject({ x: z.number(), y: z.number() }),
   ),
+  frames: framesSchema.optional(),
   commit: gitSha1Schema,
 });
 const invalid = z.strictObject({
