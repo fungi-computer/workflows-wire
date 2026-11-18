@@ -9,6 +9,7 @@ import {
 } from "@fungi.computer/braid/git-access";
 import { gitSha1Schema } from "@fungi.computer/puffball/git-representation";
 import {
+  runReply,
   workflowIdSchema,
   workflowIssueSchema as issueSchema,
 } from "./outcomes.js";
@@ -138,6 +139,30 @@ export const shareReview = z.strictObject({
   // Definition decoding owns trigger grammar; this reply transports configuration only.
   triggers: z.array(z.json()),
 });
+/** A test of the saved draft: the revision the caller saw, and optionally one step. */
+export const testDraftInput = runBase.extend({
+  /** The saved draft revision to test; a mismatch means save first. */
+  expectedRevision: revisionSchema,
+  /** Test only this step and the steps it depends on. */
+  step: z.string().min(1).max(256).optional(),
+  /** Allow steps that write or post to really run. */
+  allowWrites: z.boolean().optional(),
+});
+/** A test's admission, or why it did not start. */
+export const testDraftReply = z.union([
+  runReply,
+  z.strictObject({
+    kind: z.literal("draft_conflict"),
+    /** The draft's current revision, or null when it no longer exists. */
+    currentRevision: revisionSchema.nullable(),
+  }),
+  z.strictObject({
+    kind: z.literal("writes_need_confirmation"),
+    /** The steps in the test that really write or post; pass allowWrites to run them. */
+    steps: shareReview.shape.writeNodes,
+  }),
+]);
+
 /** Import/fork result with the saved draft and review, or a typed refusal. */
 export const shareCopyReply = z.lazy(() =>
   z.union([

@@ -171,6 +171,11 @@ export const statusReply = z.lazy(() =>
       outcome: runOutcomeSchema,
       /** Human-readable run title. */
       title: z.string().max(120),
+      /**
+       * The input the run was admitted with, so a person can run it again from
+       * the same values. It is the run's own input, never a binding or a credential.
+       */
+      input: z.record(z.string(), z.json()),
       /** Bounded run event records. */
       events: z.array(z.record(z.string(), z.json())).max(4096),
       /** Bounded review records associated with the run. */
@@ -280,13 +285,14 @@ export const schedulesReplySchema = z.lazy(() =>
   ]),
 );
 
-/** Origin category recorded for a run: manual, schedule, event, Agent or key. */
+/** Origin category recorded for a run: manual, schedule, event, Agent, key or a test of a draft. */
 export const workflowRunSourceSchema = z.enum([
   "manual",
   "schedule",
   "event",
   "agent",
   "key",
+  "test",
 ]);
 /** The Agent Session (`sessionId`) stays host-side; the wire names only the Agent/key and its grantor. */
 export const workflowRunInitiatedBySchema = z.lazy(() =>
@@ -315,31 +321,44 @@ export const workflowRunInitiatedBySchema = z.lazy(() =>
     }),
   ]),
 );
-/** Bounded recent-run rows with their source, initiator and pinned commit. */
+/** A run of a published version: its pinned commit and, from a trigger, the trigger. */
+export const publishedRunRowSchema = z.strictObject({
+  /** Identity of the recorded run. */
+  runId: id,
+  /** Workflow selected by the run. */
+  workflowId: workflowIdSchema,
+  /** Exact published commit used by the run. */
+  commit: z.string(),
+  /** Origin category recorded at admission; a test is never a published run. */
+  source: workflowRunSourceSchema.exclude(["test"]),
+  /** Published trigger that initiated the run, when applicable. */
+  triggerId: id.optional(),
+  /** Host-admitted initiating principal and grantor. */
+  initiatedBy: workflowRunInitiatedBySchema,
+  /** Run start timestamp. */
+  startedAt: z.number(),
+});
+/** A test run of an unpublished draft: the saved revision it ran, no commit. */
+export const testRunRowSchema = z.strictObject({
+  /** Identity of the recorded run. */
+  runId: id,
+  /** Workflow whose draft was tested. */
+  workflowId: workflowIdSchema,
+  /** Saved draft revision the test ran. */
+  draftRevision: z.number().int().nonnegative(),
+  /** `"test"` for a member's test; an Agent's or key's test keeps its own source. */
+  source: workflowRunSourceSchema,
+  /** Host-admitted initiating principal and grantor. */
+  initiatedBy: workflowRunInitiatedBySchema,
+  /** Run start timestamp. */
+  startedAt: z.number(),
+});
+/** Bounded recent-run rows with their source, initiator and pinned commit or tested draft. */
 export const runsReplySchema = z.lazy(() =>
   z.union([
     z.strictObject({
       /** Bounded recent runs visible to this invocation. */
-      runs: z
-        .array(
-          z.strictObject({
-            /** Identity of the recorded run. */
-            runId: id,
-            /** Workflow selected by the run. */
-            workflowId: workflowIdSchema,
-            /** Exact published commit used by the run. */
-            commit: z.string(),
-            /** Origin category recorded at admission. */
-            source: workflowRunSourceSchema,
-            /** Published trigger that initiated the run, when applicable. */
-            triggerId: id.optional(),
-            /** Host-admitted initiating principal and grantor. */
-            initiatedBy: workflowRunInitiatedBySchema,
-            /** Run start timestamp. */
-            startedAt: z.number(),
-          }),
-        )
-        .max(50),
+      runs: z.array(z.union([publishedRunRowSchema, testRunRowSchema])).max(50),
     }),
     denied,
   ]),

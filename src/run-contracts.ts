@@ -1,9 +1,6 @@
 import * as z from "zod";
 import { workflowIdSchema } from "@fungi.computer/braid";
-import {
-  workflowRunSourceSchema,
-  workflowRunInitiatedBySchema,
-} from "./outcomes.js";
+import { publishedRunRowSchema, testRunRowSchema } from "./outcomes.js";
 
 /** The App's `WORKFLOWS.runs` read, scoped to one Workflow when given. */
 export const runsInputSchema = z.lazy(() =>
@@ -13,21 +10,18 @@ export const runsInputSchema = z.lazy(() =>
 );
 
 /**
- * One listed run, from the stored source of truth plus the App's own copy of
- * the published document at `commit`; display metadata never comes from Git.
+ * One listed run, from the stored source of truth. A published run adds the
+ * App's own copy of the document at `commit`; a test run has no commit and
+ * takes its title from the draft it ran. Display metadata never comes from Git.
  */
 export const runListItemSchema = z.lazy(() =>
-  z.strictObject({
-    runId: z.string(),
-    workflowId: workflowIdSchema,
-    commit: z.string(),
-    version: z.number().int().positive().nullable(),
-    startedAt: z.number(),
-    title: z.string().nullable(),
-    source: workflowRunSourceSchema,
-    triggerId: z.string().optional(),
-    initiatedBy: workflowRunInitiatedBySchema,
-  }),
+  z.union([
+    publishedRunRowSchema.extend({
+      version: z.number().int().positive().nullable(),
+      title: z.string().nullable(),
+    }),
+    testRunRowSchema.extend({ title: z.string().nullable() }),
+  ]),
 );
 /** Decoded run row with its pinned publication and display metadata. */
 export type WorkflowRunListItem = z.output<typeof runListItemSchema>;

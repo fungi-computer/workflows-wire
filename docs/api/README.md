@@ -579,6 +579,97 @@ Share review listing Git access, write/external nodes and trigger configuration.
 
 ---
 
+### testDraftInput
+
+```ts
+const testDraftInput: ZodObject<
+  {
+    requestId: ZodString;
+    workflowId: ZodString;
+    bindings: ZodRecord<
+      ZodLazy<ZodString>,
+      ZodUnion<
+        readonly [
+          ZodString,
+          ZodLazy<
+            ZodObject<
+              {
+                kind: ZodLiteral<"team-source">;
+              },
+              $strict
+            >
+          >,
+        ]
+      >
+    >;
+    input: ZodRecord<ZodString, ZodJSONSchema>;
+    delivery: ZodOptional<
+      ZodObject<
+        {
+          agentId: ZodString;
+          sessionId: ZodString;
+        },
+        $strict
+      >
+    >;
+    expectedRevision: ZodNumber;
+    step: ZodOptional<ZodString>;
+    allowWrites: ZodOptional<ZodBoolean>;
+  },
+  $strict
+>;
+```
+
+A test of the saved draft: the revision the caller saw, and optionally one step.
+
+---
+
+### testDraftReply
+
+```ts
+const testDraftReply: ZodUnion<readonly [ZodLazy<ZodUnion<readonly [ZodObject<{
+  kind: ZodEnum<{
+     started: "started";
+     replay: "replay";
+     conflict: "conflict";
+  }>;
+  runId: ZodString;
+  planDigest: ZodString;
+}, $strict>, ZodObject<{
+  kind: ZodLiteral<"invalid">;
+  issues: ZodArray<ZodLazy<ZodObject<{
+     code: ...;
+     message: ...;
+     graph: ...;
+     node: ...;
+     trigger: ...;
+     port: ...;
+     edge: ...;
+  }, $strip>>>;
+}, $strict>, ZodObject<{
+  error: ZodString;
+}, $strict>]>>, ZodObject<{
+  kind: ZodLiteral<"draft_conflict">;
+  currentRevision: ZodNullable<ZodNumber>;
+}, $strict>, ZodObject<{
+  kind: ZodLiteral<"writes_need_confirmation">;
+  steps: ZodArray<ZodObject<{
+     graph: ZodString;
+     node: ZodString;
+     appId: ZodString;
+     method: ZodString;
+     effect: ZodEnum<{
+        write: "write";
+        external: "external";
+     }>;
+  }, $strict>>;
+}, $strict>]>;
+```
+
+A test's admission, or why it did not start.
+
+---
+
 ### shareCopyReply
 
 ```ts
@@ -1410,6 +1501,7 @@ const statusReply: ZodLazy<
             active: "active";
           }>;
           title: ZodString;
+          input: ZodRecord<ZodString, ZodJSONSchema>;
           events: ZodArray<ZodRecord<ZodString, ZodJSONSchema>>;
           reviews: ZodArray<ZodRecord<ZodString, ZodJSONSchema>>;
           status: ZodString;
@@ -1661,10 +1753,12 @@ const workflowRunSourceSchema: ZodEnum<{
   event: "event";
   agent: "agent";
   key: "key";
+  test: "test";
 }>;
 ```
 
-Origin category recorded for a run: manual, schedule, event, Agent or key.
+Origin category recorded for a run: manual, schedule, event, Agent, key or a
+test of a draft.
 
 ---
 
@@ -1707,31 +1801,144 @@ Agent/key and its grantor.
 
 ---
 
+### publishedRunRowSchema
+
+```ts
+const publishedRunRowSchema: ZodObject<
+  {
+    runId: ZodString;
+    workflowId: ZodString;
+    commit: ZodString;
+    source: ZodEnum<{
+      manual: "manual";
+      schedule: "schedule";
+      event: "event";
+      agent: "agent";
+      key: "key";
+    }>;
+    triggerId: ZodOptional<ZodString>;
+    initiatedBy: ZodLazy<
+      ZodUnion<
+        readonly [
+          ZodObject<
+            {
+              kind: ZodLiteral<"member">;
+              memberId: ZodString;
+            },
+            $strict
+          >,
+          ZodObject<
+            {
+              kind: ZodLiteral<"agent">;
+              agentId: ZodString;
+              grantorMemberId: ZodString;
+            },
+            $strict
+          >,
+          ZodObject<
+            {
+              kind: ZodLiteral<"key">;
+              keyId: ZodString;
+              grantorMemberId: ZodString;
+            },
+            $strict
+          >,
+        ]
+      >
+    >;
+    startedAt: ZodNumber;
+  },
+  $strict
+>;
+```
+
+A run of a published version: its pinned commit and, from a trigger, the
+trigger.
+
+---
+
+### testRunRowSchema
+
+```ts
+const testRunRowSchema: ZodObject<
+  {
+    runId: ZodString;
+    workflowId: ZodString;
+    draftRevision: ZodNumber;
+    source: ZodEnum<{
+      manual: "manual";
+      schedule: "schedule";
+      event: "event";
+      agent: "agent";
+      key: "key";
+      test: "test";
+    }>;
+    initiatedBy: ZodLazy<
+      ZodUnion<
+        readonly [
+          ZodObject<
+            {
+              kind: ZodLiteral<"member">;
+              memberId: ZodString;
+            },
+            $strict
+          >,
+          ZodObject<
+            {
+              kind: ZodLiteral<"agent">;
+              agentId: ZodString;
+              grantorMemberId: ZodString;
+            },
+            $strict
+          >,
+          ZodObject<
+            {
+              kind: ZodLiteral<"key">;
+              keyId: ZodString;
+              grantorMemberId: ZodString;
+            },
+            $strict
+          >,
+        ]
+      >
+    >;
+    startedAt: ZodNumber;
+  },
+  $strict
+>;
+```
+
+A test run of an unpublished draft: the saved revision it ran, no commit.
+
+---
+
 ### runsReplySchema
 
 ```ts
 const runsReplySchema: ZodLazy<ZodUnion<readonly [ZodObject<{
-  runs: ZodArray<ZodObject<{
+  runs: ZodArray<ZodUnion<readonly [ZodObject<{
      runId: ZodString;
      workflowId: ZodString;
      commit: ZodString;
-     source: ZodEnum<{
-        manual: "manual";
-        schedule: "schedule";
-        event: "event";
-        agent: "agent";
-        key: "key";
-     }>;
-     triggerId: ZodOptional<ZodString>;
-     initiatedBy: ZodLazy<ZodUnion<readonly [..., ..., ...]>>;
+     source: ZodEnum<...>;
+     triggerId: ZodOptional<...>;
+     initiatedBy: ZodLazy<...>;
      startedAt: ZodNumber;
-  }, $strict>>;
+   }, $strict>, ZodObject<{
+     runId: ZodString;
+     workflowId: ZodString;
+     draftRevision: ZodNumber;
+     source: ZodEnum<...>;
+     initiatedBy: ZodLazy<...>;
+     startedAt: ZodNumber;
+  }, $strict>]>>;
 }, $strict>, ZodObject<{
   error: ZodString;
 }, $strict>]>>;
 ```
 
-Bounded recent-run rows with their source, initiator and pinned commit.
+Bounded recent-run rows with their source, initiator and pinned commit or tested
+draft.
 
 ---
 
@@ -1852,60 +2059,65 @@ The App's `WORKFLOWS.runs` read, scoped to one Workflow when given.
 ### runListItemSchema
 
 ```ts
-const runListItemSchema: ZodLazy<
-  ZodObject<
-    {
-      runId: ZodString;
-      workflowId: ZodString;
-      commit: ZodString;
-      version: ZodNullable<ZodNumber>;
-      startedAt: ZodNumber;
-      title: ZodNullable<ZodString>;
-      source: ZodEnum<{
-        manual: "manual";
-        schedule: "schedule";
-        event: "event";
-        agent: "agent";
-        key: "key";
-      }>;
-      triggerId: ZodOptional<ZodString>;
-      initiatedBy: ZodLazy<
-        ZodUnion<
-          readonly [
-            ZodObject<
-              {
-                kind: ZodLiteral<"member">;
-                memberId: ZodString;
-              },
-              $strict
-            >,
-            ZodObject<
-              {
-                kind: ZodLiteral<"agent">;
-                agentId: ZodString;
-                grantorMemberId: ZodString;
-              },
-              $strict
-            >,
-            ZodObject<
-              {
-                kind: ZodLiteral<"key">;
-                keyId: ZodString;
-                grantorMemberId: ZodString;
-              },
-              $strict
-            >,
-          ]
-        >
-      >;
-    },
-    $strict
-  >
->;
+const runListItemSchema: ZodLazy<ZodUnion<readonly [ZodObject<{
+  runId: ZodString;
+  workflowId: ZodString;
+  commit: ZodString;
+  source: ZodEnum<{
+     manual: "manual";
+     schedule: "schedule";
+     event: "event";
+     agent: "agent";
+     key: "key";
+  }>;
+  triggerId: ZodOptional<ZodString>;
+  initiatedBy: ZodLazy<ZodUnion<readonly [ZodObject<{
+     kind: ZodLiteral<...>;
+     memberId: ZodString;
+   }, $strict>, ZodObject<{
+     kind: ZodLiteral<...>;
+     agentId: ZodString;
+     grantorMemberId: ZodString;
+   }, $strict>, ZodObject<{
+     kind: ZodLiteral<...>;
+     keyId: ZodString;
+     grantorMemberId: ZodString;
+  }, $strict>]>>;
+  startedAt: ZodNumber;
+  version: ZodNullable<ZodNumber>;
+  title: ZodNullable<ZodString>;
+}, $strict>, ZodObject<{
+  runId: ZodString;
+  workflowId: ZodString;
+  draftRevision: ZodNumber;
+  source: ZodEnum<{
+     manual: "manual";
+     schedule: "schedule";
+     event: "event";
+     agent: "agent";
+     key: "key";
+     test: "test";
+  }>;
+  initiatedBy: ZodLazy<ZodUnion<readonly [ZodObject<{
+     kind: ZodLiteral<...>;
+     memberId: ZodString;
+   }, $strict>, ZodObject<{
+     kind: ZodLiteral<...>;
+     agentId: ZodString;
+     grantorMemberId: ZodString;
+   }, $strict>, ZodObject<{
+     kind: ZodLiteral<...>;
+     keyId: ZodString;
+     grantorMemberId: ZodString;
+  }, $strict>]>>;
+  startedAt: ZodNumber;
+  title: ZodNullable<ZodString>;
+}, $strict>]>>;
 ```
 
-One listed run, from the stored source of truth plus the App's own copy of the
-published document at `commit`; display metadata never comes from Git.
+One listed run, from the stored source of truth. A published run adds the App's
+own copy of the document at `commit`; a test run has no commit and takes its
+title from the draft it ran. Display metadata never comes from Git.
 
 ---
 

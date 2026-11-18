@@ -1,5 +1,20 @@
 # @fungi.computer/workflows-wire
 
+## 0.6.0
+
+### Minor Changes
+
+- Changes since 0.5.4:
+
+  - feat(trellis): draw a run on the canvas, with the review in the right panel
+  - feat(workflows): report the input a run was started with in its status
+  - feat(trellis): test a saved draft as a Test run
+
+### Patch Changes
+
+- Updated dependencies
+  - @fungi.computer/braid@0.6.0
+
 ## 0.5.4
 
 ### Patch Changes
