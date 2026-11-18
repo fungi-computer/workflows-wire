@@ -119,6 +119,32 @@ export const saveReply = z.union([
   invalid,
 ]);
 const reviewedNode = { graph: z.string(), node: z.string() };
+/** Who saved a draft revision. A Team key is named only by its kind. */
+export const draftActor = z.discriminatedUnion("kind", [
+  z.strictObject({ kind: z.literal("member"), memberId: z.string() }),
+  z.strictObject({ kind: z.literal("agent"), agentId: z.string() }),
+  z.strictObject({ kind: z.literal("team-key") }),
+]);
+/**
+ * The draft's current revision, the saves since the live version (newest
+ * first, at most 100, `at` in epoch milliseconds) and the live version number.
+ * Null when the Workflow has no draft row.
+ */
+export const draftHeadRead = z
+  .strictObject({
+    revision: z.number().int().positive(),
+    changedSince: z
+      .array(
+        z.strictObject({
+          actor: draftActor,
+          revision: z.number().int().positive(),
+          at: z.number().int().nonnegative(),
+        }),
+      )
+      .max(100),
+    liveVersion: z.number().int().positive().nullable(),
+  })
+  .nullable();
 /** Share review listing Git access, write/external nodes and trigger configuration. */
 export const shareReview = z.strictObject({
   gitAccess: z.array(

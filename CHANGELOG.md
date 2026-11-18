@@ -1,5 +1,13 @@
 # @fungi.computer/workflows-wire
 
+## 0.7.0
+
+### Minor Changes
+
+- Changes since 0.6.0:
+
+  - feat(trellis): record who changed and published each draft
+
 ## 0.6.0
 
 ### Minor Changes

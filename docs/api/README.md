@@ -521,6 +521,68 @@ Draft save result, including revision conflict or validation issues.
 
 ---
 
+### draftActor
+
+```ts
+const draftActor: ZodDiscriminatedUnion<
+  [
+    ZodObject<
+      {
+        kind: ZodLiteral<"member">;
+        memberId: ZodString;
+      },
+      $strict
+    >,
+    ZodObject<
+      {
+        kind: ZodLiteral<"agent">;
+        agentId: ZodString;
+      },
+      $strict
+    >,
+    ZodObject<
+      {
+        kind: ZodLiteral<"team-key">;
+      },
+      $strict
+    >,
+  ],
+  "kind"
+>;
+```
+
+Who saved a draft revision. A Team key is named only by its kind.
+
+---
+
+### draftHeadRead
+
+```ts
+const draftHeadRead: ZodNullable<ZodObject<{
+  revision: ZodNumber;
+  changedSince: ZodArray<ZodObject<{
+     actor: ZodDiscriminatedUnion<[ZodObject<{
+        kind: ZodLiteral<...>;
+        memberId: ZodString;
+      }, $strict>, ZodObject<{
+        kind: ZodLiteral<...>;
+        agentId: ZodString;
+      }, $strict>, ZodObject<{
+        kind: ZodLiteral<...>;
+     }, $strict>], "kind">;
+     revision: ZodNumber;
+     at: ZodNumber;
+  }, $strict>>;
+  liveVersion: ZodNullable<ZodNumber>;
+}, $strict>>;
+```
+
+The draft's current revision, the saves since the live version (newest first, at
+most 100, `at` in epoch milliseconds) and the live version number. Null when the
+Workflow has no draft row.
+
+---
+
 ### shareReview
 
 ```ts
