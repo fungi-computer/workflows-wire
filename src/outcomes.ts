@@ -159,33 +159,55 @@ export const cancelReplySchema = z.lazy(() =>
 /** Lifecycle outcome reported for a Workflow run. */
 export const runOutcomeSchema = z.enum(["active", "terminal", "cancelled"]);
 
-/** Bounded run status snapshot with events, reviews, output and error. */
+/** The fields of a run status snapshot. */
+const runStatusFields = {
+  /** Identity of the inspected run. */
+  runId: identity,
+  /** Digest of the run's admitted plan. */
+  planDigest: identity,
+  /** Current run lifecycle outcome. */
+  outcome: runOutcomeSchema,
+  /** Human-readable run title. */
+  title: z.string().max(120),
+  /**
+   * The input the run was admitted with, so a person can run it again from
+   * the same values. It is the run's own input, never a binding or a credential.
+   */
+  input: z.record(z.string(), z.json()),
+  /** Bounded run event records. */
+  events: z.array(z.record(z.string(), z.json())).max(4096),
+  /** Bounded review records associated with the run. */
+  reviews: z.array(z.record(z.string(), z.json())).max(256),
+  /** Run status label supplied by the host. */
+  status: identity,
+  /** JSON run output. */
+  output: z.json(),
+  /** JSON run error. */
+  error: z.json(),
+};
+
+/**
+ * Bounded run status snapshot with events, reviews, output and error, exactly
+ * as a host produces it: no field beyond these leaves the host.
+ */
 export const statusReply = z.lazy(() =>
+  z.union([z.strictObject(runStatusFields), refusal]),
+);
+
+/**
+ * A host's run status as an App reads it. A self-hosted App and its Oyster can
+ * be a release apart in either direction (`oyster install-apps` builds the
+ * App's repository ref on whatever host is deployed, and `oyster upgrade`
+ * leaves installed Apps alone), so the reader drops fields a newer host adds.
+ * A host from before 11-17 records no `input`; the reader gives `null`, so an
+ * App can say the inputs weren't recorded instead of offering an empty set as
+ * the run's own.
+ */
+export const hostStatusReply = z.lazy(() =>
   z.union([
-    z.strictObject({
-      /** Identity of the inspected run. */
-      runId: identity,
-      /** Digest of the run's admitted plan. */
-      planDigest: identity,
-      /** Current run lifecycle outcome. */
-      outcome: runOutcomeSchema,
-      /** Human-readable run title. */
-      title: z.string().max(120),
-      /**
-       * The input the run was admitted with, so a person can run it again from
-       * the same values. It is the run's own input, never a binding or a credential.
-       */
-      input: z.record(z.string(), z.json()),
-      /** Bounded run event records. */
-      events: z.array(z.record(z.string(), z.json())).max(4096),
-      /** Bounded review records associated with the run. */
-      reviews: z.array(z.record(z.string(), z.json())).max(256),
-      /** Run status label supplied by the host. */
-      status: identity,
-      /** JSON run output. */
-      output: z.json(),
-      /** JSON run error. */
-      error: z.json(),
+    z.object({
+      ...runStatusFields,
+      input: runStatusFields.input.nullable().default(null),
     }),
     refusal,
   ]),

@@ -1583,7 +1583,53 @@ const statusReply: ZodLazy<
 >;
 ```
 
-Bounded run status snapshot with events, reviews, output and error.
+Bounded run status snapshot with events, reviews, output and error, exactly as a
+host produces it: no field beyond these leaves the host.
+
+---
+
+### hostStatusReply
+
+```ts
+const hostStatusReply: ZodLazy<
+  ZodUnion<
+    readonly [
+      ZodObject<
+        {
+          runId: ZodString;
+          planDigest: ZodString;
+          outcome: ZodEnum<{
+            cancelled: "cancelled";
+            terminal: "terminal";
+            active: "active";
+          }>;
+          title: ZodString;
+          events: ZodArray<ZodRecord<ZodString, ZodJSONSchema>>;
+          reviews: ZodArray<ZodRecord<ZodString, ZodJSONSchema>>;
+          status: ZodString;
+          output: ZodJSONSchema;
+          error: ZodJSONSchema;
+          input: ZodDefault<ZodNullable<ZodRecord<ZodString, ZodJSONSchema>>>;
+        },
+        $strip
+      >,
+      ZodObject<
+        {
+          error: ZodString;
+        },
+        $strict
+      >,
+    ]
+  >
+>;
+```
+
+A host's run status as an App reads it. A self-hosted App and its Oyster can be
+a release apart in either direction (`oyster install-apps` builds the App's
+repository ref on whatever host is deployed, and `oyster upgrade` leaves
+installed Apps alone), so the reader drops fields a newer host adds. A host from
+before 11-17 records no `input`; the reader gives `null`, so an App can say the
+inputs weren't recorded instead of offering an empty set as the run's own.
 
 ---
 
