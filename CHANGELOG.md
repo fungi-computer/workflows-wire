@@ -1,5 +1,13 @@
 # @fungi.computer/workflows-wire
 
+## 0.7.14
+
+### Patch Changes
+
+- Updated dependencies
+  - @fungi.computer/agar@0.28.2
+  - @fungi.computer/braid@0.6.13
+
 ## 0.7.13
 
 ### Patch Changes
