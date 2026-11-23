@@ -1,5 +1,12 @@
 # @fungi.computer/workflows-wire
 
+## 0.7.17
+
+### Patch Changes
+
+- @fungi.computer/agar@0.28.5
+  - @fungi.computer/braid@0.6.16
+
 ## 0.7.16
 
 ### Patch Changes
